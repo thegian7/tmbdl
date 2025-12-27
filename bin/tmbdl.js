@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { createInterface } from 'readline';
 import { Lexer } from '../src/lexer.js';
 import { Parser } from '../src/parser.js';
@@ -42,8 +43,9 @@ Examples:
 
 function runFile(filepath) {
   try {
-    const source = readFileSync(filepath, 'utf-8');
-    run(source);
+    const fullPath = resolve(filepath);
+    const source = readFileSync(fullPath, 'utf-8');
+    run(source, fullPath);
   } catch (error) {
     if (error.code === 'ENOENT') {
       console.error(`\n  The path has vanished: '${filepath}' not found\n`);
@@ -54,7 +56,7 @@ function runFile(filepath) {
   }
 }
 
-function run(source) {
+function run(source, filepath = null) {
   try {
     const lexer = new Lexer(source);
     const tokens = lexer.tokenize();
@@ -62,7 +64,7 @@ function run(source) {
     const parser = new Parser(tokens);
     const ast = parser.parse();
 
-    const interpreter = new Interpreter();
+    const interpreter = new Interpreter(filepath);
     interpreter.interpret(ast);
   } catch (error) {
     console.error(formatError(error, source));

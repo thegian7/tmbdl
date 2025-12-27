@@ -1,0 +1,33 @@
+~ Math utilities module
+
+share precious PI = 3.14159
+share precious E = 2.71828
+
+share song square(x) {
+    answer x * x
+}
+
+share song cube(x) {
+    answer x * x * x
+}
+
+share song power(base, exp) {
+    ring result = 1
+    ring i = 0
+    wander (i < exp) {
+        result *= base
+        i++
+    }
+    answer result
+}
+
+share song factorial(n) {
+    perhaps (n <= 1) {
+        answer 1
+    }
+    answer n * factorial(n - 1)
+}
+
+share song circleArea(radius) {
+    answer PI * radius * radius
+}

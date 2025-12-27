@@ -295,3 +295,31 @@ export class TemplateLiteral extends ASTNode {
     this.parts = parts;  // Array of { type: 'text'|'expr', value: string|AST }
   }
 }
+
+// Module system
+
+// summon "path/to/module.tmbdl"
+// summon "module.tmbdl" as myModule
+// summon { foo, bar } from "module.tmbdl"
+// summon { foo as f } from "module.tmbdl"
+export class SummonStatement extends ASTNode {
+  constructor(path, imports, alias, line, column) {
+    super(line, column);
+    this.type = 'SummonStatement';
+    this.path = path;           // string path to module
+    this.imports = imports;     // null (import all) or array of {name, alias}
+    this.alias = alias;         // alias for whole module (when imports is null)
+  }
+}
+
+// share ring x = 5
+// share song greet() { }
+// share { x, y, greet }
+export class ShareStatement extends ASTNode {
+  constructor(declaration, names, line, column) {
+    super(line, column);
+    this.type = 'ShareStatement';
+    this.declaration = declaration;  // the declaration being exported, or null
+    this.names = names;              // for "share { x, y }" syntax
+  }
+}

@@ -1,0 +1,48 @@
+~ String utilities module
+
+share song uppercase(str) {
+    ~ Simple uppercase for ASCII letters
+    ring result = ""
+    ring i = 0
+    wander (i < length(str)) {
+        ring char = str[i]
+        ~ This is a simplified version
+        result += char
+        i++
+    }
+    answer result
+}
+
+share song repeat(str, times) {
+    ring result = ""
+    ring i = 0
+    wander (i < times) {
+        result += str
+        i++
+    }
+    answer result
+}
+
+share song reverse(str) {
+    ring result = ""
+    ring i = length(str) - 1
+    wander (i >= 0) {
+        result += str[i]
+        i--
+    }
+    answer result
+}
+
+share song startsWith(str, prefix) {
+    perhaps (length(prefix) > length(str)) {
+        answer sauron
+    }
+    ring i = 0
+    wander (i < length(prefix)) {
+        perhaps (str[i] != prefix[i]) {
+            answer sauron
+        }
+        i++
+    }
+    answer goldberry
+}

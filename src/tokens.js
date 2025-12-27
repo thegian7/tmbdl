@@ -30,6 +30,10 @@ export const TokenType = {
   ATTEMPT: 'ATTEMPT',         // try
   RESCUE: 'RESCUE',           // catch
   PERIL: 'PERIL',             // error variable in catch
+  SUMMON: 'SUMMON',           // import
+  SHARE: 'SHARE',             // export
+  FROM: 'FROM',               // from (for selective imports)
+  AS: 'AS',                   // as (for aliasing)
 
   // Operators
   PLUS: 'PLUS',               // +
@@ -93,6 +97,10 @@ export const Keywords = {
   'attempt': TokenType.ATTEMPT,
   'rescue': TokenType.RESCUE,
   'peril': TokenType.PERIL,
+  'summon': TokenType.SUMMON,
+  'share': TokenType.SHARE,
+  'from': TokenType.FROM,
+  'as': TokenType.AS,
 };
 
 // Token class

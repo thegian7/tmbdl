@@ -24,6 +24,8 @@ export class Parser {
 
   declaration() {
     try {
+      if (this.check(TokenType.SUMMON)) return this.summonStatement();
+      if (this.check(TokenType.SHARE)) return this.shareStatement();
       if (this.check(TokenType.RING)) return this.variableDeclaration(false);
       if (this.check(TokenType.PRECIOUS)) return this.variableDeclaration(true);
       if (this.check(TokenType.SONG)) return this.functionDeclaration();
@@ -32,6 +34,82 @@ export class Parser {
       this.synchronize();
       throw error;
     }
+  }
+
+  summonStatement() {
+    const keyword = this.advance(); // consume summon
+
+    // Check for destructured import: summon { x, y } from "path"
+    if (this.check(TokenType.LBRACE)) {
+      this.advance(); // consume {
+      const imports = [];
+
+      do {
+        const name = this.consume(TokenType.IDENTIFIER, "Expected import name");
+        let alias = name.value;
+
+        if (this.match(TokenType.AS)) {
+          alias = this.consume(TokenType.IDENTIFIER, "Expected alias name").value;
+        }
+
+        imports.push({ name: name.value, alias });
+      } while (this.match(TokenType.COMMA));
+
+      this.consume(TokenType.RBRACE, "Expected '}' after imports");
+      this.consume(TokenType.FROM, "Expected 'from' after imports");
+      const path = this.consume(TokenType.STRING, "Expected module path");
+
+      this.optionalSemicolon();
+      return new AST.SummonStatement(path.value, imports, null, keyword.line, keyword.column);
+    }
+
+    // Regular import: summon "path" or summon "path" as alias
+    const path = this.consume(TokenType.STRING, "Expected module path");
+    let alias = null;
+
+    if (this.match(TokenType.AS)) {
+      alias = this.consume(TokenType.IDENTIFIER, "Expected alias name").value;
+    }
+
+    this.optionalSemicolon();
+    return new AST.SummonStatement(path.value, null, alias, keyword.line, keyword.column);
+  }
+
+  shareStatement() {
+    const keyword = this.advance(); // consume share
+
+    // Check for named exports: share { x, y }
+    if (this.check(TokenType.LBRACE)) {
+      this.advance(); // consume {
+      const names = [];
+
+      do {
+        const name = this.consume(TokenType.IDENTIFIER, "Expected export name");
+        names.push(name.value);
+      } while (this.match(TokenType.COMMA));
+
+      this.consume(TokenType.RBRACE, "Expected '}' after exports");
+      this.optionalSemicolon();
+      return new AST.ShareStatement(null, names, keyword.line, keyword.column);
+    }
+
+    // Export declaration: share ring x = 5, share song foo() {}
+    let declaration;
+    if (this.check(TokenType.RING)) {
+      declaration = this.variableDeclaration(false);
+    } else if (this.check(TokenType.PRECIOUS)) {
+      declaration = this.variableDeclaration(true);
+    } else if (this.check(TokenType.SONG)) {
+      declaration = this.functionDeclaration();
+    } else {
+      throw new TmbdlError(
+        "Expected declaration after 'share'",
+        keyword.line,
+        keyword.column
+      );
+    }
+
+    return new AST.ShareStatement(declaration, null, keyword.line, keyword.column);
   }
 
   variableDeclaration(isConstant) {
@@ -566,6 +644,7 @@ export class Parser {
       TokenType.PERHAPS, TokenType.WANDER, TokenType.JOURNEY,
       TokenType.ANSWER, TokenType.FLEE, TokenType.ONWARDS,
       TokenType.SING, TokenType.EYEOF, TokenType.ATTEMPT,
+      TokenType.SUMMON, TokenType.SHARE,
       TokenType.LBRACE, TokenType.RBRACE, TokenType.EOF
     ].includes(next.type);
   }
@@ -615,6 +694,8 @@ export class Parser {
         case TokenType.SING:
         case TokenType.EYEOF:
         case TokenType.ATTEMPT:
+        case TokenType.SUMMON:
+        case TokenType.SHARE:
           return;
       }
 

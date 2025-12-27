@@ -1,11 +1,18 @@
+import { readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
 import { Environment, ReturnValue, BreakSignal, ContinueSignal, TmbdlFunction, TmbdlLambda } from './environment.js';
 import { RuntimeError, TypeError, DivisionByZeroError, TmbdlError } from './errors.js';
 import { createStdlib, NativeFunction, HigherOrderFunction, formatValue } from './stdlib.js';
+import { Lexer } from './lexer.js';
+import { Parser } from './parser.js';
 
 export class Interpreter {
-  constructor() {
+  constructor(currentFile = null) {
     this.globals = new Environment();
     this.environment = this.globals;
+    this.currentFile = currentFile;  // path of currently executing file
+    this.exports = new Map();        // exports from current module
+    this.moduleCache = new Map();    // cache of loaded modules
 
     // Load standard library
     const stdlib = createStdlib();
@@ -71,6 +78,12 @@ export class Interpreter {
       case 'TryStatement':
         return this.executeTry(node);
 
+      case 'SummonStatement':
+        return this.executeSummon(node);
+
+      case 'ShareStatement':
+        return this.executeShare(node);
+
       case 'CompoundAssignment':
         return this.executeCompoundAssignment(node);
 
@@ -83,6 +96,116 @@ export class Interpreter {
       default:
         return this.evaluate(node);
     }
+  }
+
+  executeSummon(node) {
+    // Resolve the module path
+    const modulePath = this.resolveModulePath(node.path, node.line, node.column);
+
+    // Load the module (uses cache if already loaded)
+    const moduleExports = this.loadModule(modulePath, node.line, node.column);
+
+    if (node.imports) {
+      // Destructured import: summon { x, y } from "module"
+      for (const { name, alias } of node.imports) {
+        if (!moduleExports.has(name)) {
+          throw new RuntimeError(
+            `Module '${node.path}' does not share '${name}'`,
+            node.line,
+            node.column
+          );
+        }
+        this.environment.define(alias, moduleExports.get(name));
+      }
+    } else if (node.alias) {
+      // Import as namespace: summon "module" as m
+      const namespace = {};
+      for (const [key, value] of moduleExports) {
+        namespace[key] = value;
+      }
+      this.environment.define(node.alias, namespace);
+    } else {
+      // Import all exports into current scope: summon "module"
+      for (const [name, value] of moduleExports) {
+        this.environment.define(name, value);
+      }
+    }
+
+    return null;
+  }
+
+  executeShare(node) {
+    if (node.declaration) {
+      // share ring x = 5 or share song foo() {}
+      this.execute(node.declaration);
+
+      // Get the name from the declaration
+      const name = node.declaration.name;
+      const value = this.environment.get(name, node.line, node.column);
+      this.exports.set(name, value);
+    } else if (node.names) {
+      // share { x, y, z }
+      for (const name of node.names) {
+        const value = this.environment.get(name, node.line, node.column);
+        this.exports.set(name, value);
+      }
+    }
+
+    return null;
+  }
+
+  resolveModulePath(importPath, line, column) {
+    // If no current file, use current working directory
+    const basePath = this.currentFile ? dirname(this.currentFile) : process.cwd();
+
+    // Resolve relative to the current file
+    let fullPath = resolve(basePath, importPath);
+
+    // Add .tmbdl extension if not present
+    if (!fullPath.endsWith('.tmbdl')) {
+      fullPath += '.tmbdl';
+    }
+
+    return fullPath;
+  }
+
+  loadModule(modulePath, line, column) {
+    // Check cache first
+    if (this.moduleCache.has(modulePath)) {
+      return this.moduleCache.get(modulePath);
+    }
+
+    // Prevent circular imports by marking as loading
+    this.moduleCache.set(modulePath, new Map());
+
+    // Read and parse the module
+    let source;
+    try {
+      source = readFileSync(modulePath, 'utf-8');
+    } catch (error) {
+      throw new RuntimeError(
+        `Cannot summon module '${modulePath}': ${error.message}`,
+        line,
+        column
+      );
+    }
+
+    const lexer = new Lexer(source);
+    const tokens = lexer.tokenize();
+    const parser = new Parser(tokens);
+    const ast = parser.parse();
+
+    // Create a new interpreter for the module
+    const moduleInterpreter = new Interpreter(modulePath);
+    moduleInterpreter.moduleCache = this.moduleCache; // Share the cache
+
+    // Execute the module
+    moduleInterpreter.interpret(ast);
+
+    // Store exports in cache
+    this.moduleCache.set(modulePath, moduleInterpreter.exports);
+
+    return moduleInterpreter.exports;
   }
 
   executeTry(node) {

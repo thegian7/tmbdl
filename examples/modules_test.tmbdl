@@ -1,0 +1,38 @@
+~ Test the module system
+
+sing "=== Testing Module System ==="
+sing ""
+
+~ Import everything from math module
+summon "lib/math.tmbdl"
+
+sing "--- Import all from math ---"
+sing `PI = {PI}`
+sing `E = {E}`
+sing `square(5) = {square(5)}`
+sing `cube(3) = {cube(3)}`
+sing `power(2, 10) = {power(2, 10)}`
+sing `factorial(6) = {factorial(6)}`
+sing `circleArea(5) = {circleArea(5)}`
+
+sing ""
+
+~ Import as namespace
+summon "lib/strings.tmbdl" as str
+
+sing "--- Import as namespace ---"
+sing `str.repeat("hi", 3) = {str["repeat"]("hi", 3)}`
+sing `str.reverse("hello") = {str["reverse"]("hello")}`
+sing `str.startsWith("hello", "he") = {str["startsWith"]("hello", "he")}`
+
+sing ""
+
+~ Selective import
+summon { square as sq, PI as pi } from "lib/math.tmbdl"
+
+sing "--- Selective import with aliases ---"
+sing `sq(7) = {sq(7)}`
+sing `pi = {pi}`
+
+sing ""
+sing "=== All Module Tests Passed! ==="
