@@ -1,0 +1,22 @@
+~ Test loop with function call and counter
+
+song greet(name) {
+    sing "Hello " + name
+}
+
+ring items = ["A", "B", "C"]
+ring count = 0
+
+journey (item in items) {
+    greet(item)
+    count = count + 1
+}
+
+sing "Count is:"
+sing count
+
+perhaps (count == 3) {
+    sing "Count is correct!"
+} otherwise {
+    sing "Count is wrong!"
+}

@@ -37,6 +37,27 @@ function formatValue(value) {
   if (Array.isArray(value)) {
     return '[' + value.map(formatValue).join(', ') + ']';
   }
+  // Check for TmbdlFunction (user-defined function)
+  if (value && value.declaration && value.closure) {
+    return `<song ${value.name}>`;
+  }
+  // Check for TmbdlLambda
+  if (value && value.params && value.body && value.closure && !value.declaration) {
+    return `<lambda (${value.params.join(', ')})>`;
+  }
+  // Check for TmbdlInstance (has klass property) or TmbdlClass (has methods Map)
+  if (value && value.klass && value.fields) {
+    // TmbdlInstance - format its fields
+    const fields = [];
+    for (const [k, v] of value.fields) {
+      fields.push(`${k}: ${formatValue(v)}`);
+    }
+    return `<${value.klass.name} {${fields.join(', ')}}>`;
+  }
+  if (value && value.methods instanceof Map) {
+    // TmbdlClass
+    return `<realm ${value.name}>`;
+  }
   if (typeof value === 'object') {
     const pairs = Object.entries(value)
       .map(([k, v]) => `${k}: ${formatValue(v)}`);

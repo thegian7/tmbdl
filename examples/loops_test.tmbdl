@@ -1,0 +1,41 @@
+~ Test loops for bytecode VM
+
+sing "=== Testing Loops ==="
+sing ""
+
+~ Test journey (for-in) loop
+sing "Journey through hobbits:"
+ring hobbits = ["Frodo", "Sam", "Merry", "Pippin"]
+
+journey (hobbit in hobbits) {
+    sing hobbit
+}
+
+sing ""
+
+~ Test with numbers
+sing "Counting 1 to 5:"
+ring numbers = [1, 2, 3, 4, 5]
+ring total = 0
+
+journey (n in numbers) {
+    sing n
+    total = total + n
+}
+
+sing "Total sum:"
+sing total
+
+sing ""
+
+~ Test wander (while) loop
+sing "Countdown:"
+ring count = 3
+wander (count > 0) {
+    sing count
+    count = count - 1
+}
+sing "Blast off!"
+
+sing ""
+sing "=== All Loop Tests Complete ==="

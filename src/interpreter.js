@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
-import { Environment, ReturnValue, BreakSignal, ContinueSignal, TmbdlFunction, TmbdlLambda } from './environment.js';
+import { Environment, ReturnValue, BreakSignal, ContinueSignal, TmbdlFunction, TmbdlLambda, TmbdlClass, TmbdlInstance } from './environment.js';
 import { RuntimeError, TypeError, DivisionByZeroError, TmbdlError } from './errors.js';
 import { createStdlib, NativeFunction, HigherOrderFunction, formatValue } from './stdlib.js';
 import { Lexer } from './lexer.js';
@@ -13,6 +13,7 @@ export class Interpreter {
     this.currentFile = currentFile;  // path of currently executing file
     this.exports = new Map();        // exports from current module
     this.moduleCache = new Map();    // cache of loaded modules
+    this.currentInstance = null;     // current 'self' for method calls
 
     // Load standard library
     const stdlib = createStdlib();
@@ -89,6 +90,12 @@ export class Interpreter {
 
       case 'UpdateExpression':
         return this.executeUpdate(node);
+
+      case 'RealmDeclaration':
+        return this.executeRealmDeclaration(node);
+
+      case 'PropertyAssignment':
+        return this.executePropertyAssignment(node);
 
       case 'ExpressionStatement':
         return this.evaluate(node.expression);
@@ -467,6 +474,22 @@ export class Interpreter {
       case 'UpdateExpression':
         return this.executeUpdate(node);
 
+      case 'SelfExpression':
+        if (this.currentInstance === null) {
+          throw new RuntimeError(
+            'Cannot use "self" outside of a realm method',
+            node.line,
+            node.column
+          );
+        }
+        return this.currentInstance;
+
+      case 'PropertyAccess':
+        return this.evaluatePropertyAccess(node);
+
+      case 'CreateExpression':
+        return this.evaluateCreate(node);
+
       default:
         throw new RuntimeError(
           `Unknown expression type: ${node.type}`,
@@ -578,6 +601,11 @@ export class Interpreter {
   evaluateCall(node) {
     const callee = this.evaluate(node.callee);
     const args = node.arguments.map(arg => this.evaluate(arg));
+
+    // Bound method (from property access on instance)
+    if (callee && callee.boundMethod) {
+      return this.callMethod(callee.instance, callee.boundMethod, args, node);
+    }
 
     // Native function
     if (callee instanceof NativeFunction) {
@@ -801,6 +829,181 @@ export class Interpreter {
 
     throw new TypeError(
       `'${formatValue(callable)}' is not callable`,
+      node.line,
+      node.column
+    );
+  }
+
+  // Class (Realm) implementation
+
+  executeRealmDeclaration(node) {
+    // Resolve superclass if any
+    let superClass = null;
+    if (node.superClass) {
+      superClass = this.environment.get(node.superClass, node.line, node.column);
+      if (!(superClass instanceof TmbdlClass)) {
+        throw new TypeError(
+          `'${node.superClass}' is not a realm - cannot inherit`,
+          node.line,
+          node.column
+        );
+      }
+    }
+
+    // Convert method declarations to TmbdlFunctions
+    const methods = node.methods.map(method =>
+      new TmbdlFunction(method, this.environment)
+    );
+
+    // Create the class
+    const klass = new TmbdlClass(
+      node.name,
+      superClass,
+      node.constructor,
+      methods
+    );
+
+    this.environment.define(node.name, klass);
+    return klass;
+  }
+
+  evaluateCreate(node) {
+    const klass = this.environment.get(node.className, node.line, node.column);
+
+    if (!(klass instanceof TmbdlClass)) {
+      throw new TypeError(
+        `'${node.className}' is not a realm - cannot create instance`,
+        node.line,
+        node.column
+      );
+    }
+
+    // Create new instance
+    const instance = new TmbdlInstance(klass);
+    const args = node.arguments.map(arg => this.evaluate(arg));
+
+    // Find constructor in class hierarchy
+    let constructor_ = klass.constructor;
+    if (!constructor_ && klass.superClass) {
+      constructor_ = klass.superClass.constructor;
+    }
+
+    // Call constructor if present
+    if (constructor_) {
+      this.callConstructor(instance, constructor_, args, node);
+    }
+
+    return instance;
+  }
+
+  callConstructor(instance, constructor_, args, node) {
+    if (args.length !== constructor_.params.length) {
+      throw new RuntimeError(
+        `Forge expects ${constructor_.params.length} arguments but received ${args.length}`,
+        node.line,
+        node.column
+      );
+    }
+
+    const environment = new Environment(this.environment);
+    for (let i = 0; i < constructor_.params.length; i++) {
+      environment.define(constructor_.params[i], args[i]);
+    }
+
+    const previousInstance = this.currentInstance;
+    this.currentInstance = instance;
+
+    try {
+      this.executeBlock(constructor_.body, environment);
+    } catch (returnValue) {
+      if (returnValue instanceof ReturnValue) {
+        // Ignore return value from constructor
+      } else {
+        throw returnValue;
+      }
+    } finally {
+      this.currentInstance = previousInstance;
+    }
+  }
+
+  callMethod(instance, method, args, node) {
+    if (args.length !== method.params.length) {
+      throw new RuntimeError(
+        `Method '${method.name}' expects ${method.params.length} arguments but received ${args.length}`,
+        node.line,
+        node.column
+      );
+    }
+
+    const environment = new Environment(method.closure);
+    for (let i = 0; i < method.params.length; i++) {
+      environment.define(method.params[i], args[i]);
+    }
+
+    const previousInstance = this.currentInstance;
+    this.currentInstance = instance;
+
+    try {
+      this.executeBlock(method.body, environment);
+    } catch (returnValue) {
+      if (returnValue instanceof ReturnValue) {
+        return returnValue.value;
+      }
+      throw returnValue;
+    } finally {
+      this.currentInstance = previousInstance;
+    }
+
+    return null;
+  }
+
+  evaluatePropertyAccess(node) {
+    const object = this.evaluate(node.object);
+
+    if (object instanceof TmbdlInstance) {
+      const value = object.get(node.property);
+      if (value === undefined) {
+        throw new RuntimeError(
+          `${object.klass.name} has no property '${node.property}'`,
+          node.line,
+          node.column
+        );
+      }
+      // If it's a method, we need to bind it to the instance
+      if (value instanceof TmbdlFunction) {
+        return { boundMethod: value, instance: object };
+      }
+      return value;
+    }
+
+    // Also support property access on plain objects
+    if (typeof object === 'object' && object !== null) {
+      return object[node.property];
+    }
+
+    throw new TypeError(
+      'Can only access properties on realm instances or objects',
+      node.line,
+      node.column
+    );
+  }
+
+  executePropertyAssignment(node) {
+    const object = this.evaluate(node.object);
+    const value = this.evaluate(node.value);
+
+    if (object instanceof TmbdlInstance) {
+      object.set(node.property, value);
+      return value;
+    }
+
+    if (typeof object === 'object' && object !== null) {
+      object[node.property] = value;
+      return value;
+    }
+
+    throw new TypeError(
+      'Can only set properties on realm instances or objects',
       node.line,
       node.column
     );

@@ -1,0 +1,23 @@
+~ A simple test for the bytecode VM
+
+sing "Hello from the VM!"
+
+ring x = 10
+ring y = 20
+ring sum = x + y
+
+sing "The sum is:"
+sing sum
+
+perhaps (sum > 25) {
+    sing "That's a big number!"
+} otherwise {
+    sing "That's a small number."
+}
+
+song double(n) {
+    answer n * 2
+}
+
+sing "Double of 21 is:"
+sing double(21)

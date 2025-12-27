@@ -37,6 +37,7 @@ export class Lexer {
       case ',': this.addToken(TokenType.COMMA); break;
       case ':': this.addToken(TokenType.COLON); break;
       case ';': this.addToken(TokenType.SEMICOLON); break;
+      case '.': this.addToken(TokenType.DOT); break;
       case '+':
         if (this.match('+')) this.addToken(TokenType.PLUS_PLUS);
         else if (this.match('=')) this.addToken(TokenType.PLUS_EQUALS);

@@ -26,6 +26,7 @@ export class Parser {
     try {
       if (this.check(TokenType.SUMMON)) return this.summonStatement();
       if (this.check(TokenType.SHARE)) return this.shareStatement();
+      if (this.check(TokenType.REALM)) return this.realmDeclaration();
       if (this.check(TokenType.RING)) return this.variableDeclaration(false);
       if (this.check(TokenType.PRECIOUS)) return this.variableDeclaration(true);
       if (this.check(TokenType.SONG)) return this.functionDeclaration();
@@ -34,6 +35,65 @@ export class Parser {
       this.synchronize();
       throw error;
     }
+  }
+
+  realmDeclaration() {
+    const keyword = this.advance(); // consume realm
+    const name = this.consume(TokenType.IDENTIFIER, "Expected realm name");
+
+    // Check for inheritance: realm Wizard inherits Being
+    let superClass = null;
+    if (this.match(TokenType.INHERITS)) {
+      superClass = this.consume(TokenType.IDENTIFIER, "Expected parent realm name").value;
+    }
+
+    this.consume(TokenType.LBRACE, "Expected '{' before realm body");
+
+    let constructor_ = null;
+    const methods = [];
+
+    while (!this.check(TokenType.RBRACE) && !this.isAtEnd()) {
+      if (this.check(TokenType.FORGE)) {
+        // Constructor
+        if (constructor_) {
+          throw new TmbdlError("A realm can only have one forge", this.peek().line, this.peek().column);
+        }
+        constructor_ = this.forgeDeclaration();
+      } else if (this.check(TokenType.SONG)) {
+        // Method
+        methods.push(this.functionDeclaration());
+      } else {
+        throw new TmbdlError(
+          "Expected 'forge' or 'song' in realm body",
+          this.peek().line,
+          this.peek().column
+        );
+      }
+    }
+
+    this.consume(TokenType.RBRACE, "Expected '}' after realm body");
+
+    return new AST.RealmDeclaration(name.value, superClass, constructor_, methods, keyword.line, keyword.column);
+  }
+
+  forgeDeclaration() {
+    const keyword = this.advance(); // consume forge
+    this.consume(TokenType.LPAREN, "Expected '(' after 'forge'");
+
+    const params = [];
+    if (!this.check(TokenType.RPAREN)) {
+      do {
+        const param = this.consume(TokenType.IDENTIFIER, "Expected parameter name");
+        params.push(param.value);
+      } while (this.match(TokenType.COMMA));
+    }
+
+    this.consume(TokenType.RPAREN, "Expected ')' after parameters");
+    this.consume(TokenType.LBRACE, "Expected '{' before forge body");
+
+    const body = this.block();
+
+    return new AST.ForgeDeclaration(params, body, keyword.line, keyword.column);
   }
 
   summonStatement() {
@@ -341,6 +401,13 @@ export class Parser {
       return new AST.IndexAssignment(expr.object, expr.index, value, expr.line, expr.column);
     }
 
+    // Check for property assignment: obj.prop = value or self.prop = value
+    if (expr.type === 'PropertyAccess' && this.match(TokenType.EQUALS)) {
+      const value = this.expression();
+      this.optionalSemicolon();
+      return new AST.PropertyAssignment(expr.object, expr.property, value, expr.line, expr.column);
+    }
+
     this.optionalSemicolon();
     return new AST.ExpressionStatement(expr, expr.line, expr.column);
   }
@@ -450,6 +517,9 @@ export class Parser {
         const index = this.expression();
         this.consume(TokenType.RBRACKET, "Expected ']' after index");
         expr = new AST.IndexExpression(expr, index, expr.line, expr.column);
+      } else if (this.match(TokenType.DOT)) {
+        const property = this.consume(TokenType.IDENTIFIER, "Expected property name after '.'");
+        expr = new AST.PropertyAccess(expr, property.value, expr.line, expr.column);
       } else {
         break;
       }
@@ -496,6 +566,14 @@ export class Parser {
 
     if (this.match(TokenType.SHADOW)) {
       return new AST.NullLiteral(token.line, token.column);
+    }
+
+    if (this.match(TokenType.SELF)) {
+      return new AST.SelfExpression(token.line, token.column);
+    }
+
+    if (this.match(TokenType.CREATE)) {
+      return this.createExpression(token);
     }
 
     if (this.match(TokenType.IDENTIFIER)) {
@@ -599,6 +677,22 @@ export class Parser {
     }
   }
 
+  createExpression(token) {
+    const className = this.consume(TokenType.IDENTIFIER, "Expected realm name after 'create'");
+    this.consume(TokenType.LPAREN, "Expected '(' after realm name");
+
+    const args = [];
+    if (!this.check(TokenType.RPAREN)) {
+      do {
+        args.push(this.expression());
+      } while (this.match(TokenType.COMMA));
+    }
+
+    this.consume(TokenType.RPAREN, "Expected ')' after arguments");
+
+    return new AST.CreateExpression(className.value, args, token.line, token.column);
+  }
+
   parseTemplateLiteral(token, line, column) {
     const rawParts = token.value;
     const parsedParts = [];
@@ -644,7 +738,7 @@ export class Parser {
       TokenType.PERHAPS, TokenType.WANDER, TokenType.JOURNEY,
       TokenType.ANSWER, TokenType.FLEE, TokenType.ONWARDS,
       TokenType.SING, TokenType.EYEOF, TokenType.ATTEMPT,
-      TokenType.SUMMON, TokenType.SHARE,
+      TokenType.SUMMON, TokenType.SHARE, TokenType.REALM,
       TokenType.LBRACE, TokenType.RBRACE, TokenType.EOF
     ].includes(next.type);
   }

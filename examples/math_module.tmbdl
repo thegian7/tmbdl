@@ -1,0 +1,17 @@
+~ Math module for Tmbdl
+
+share song add(a, b) {
+    answer a + b
+}
+
+share song multiply(a, b) {
+    answer a * b
+}
+
+share ring PI = 3.14159
+
+song square(x) {
+    answer multiply(x, x)
+}
+
+share { square }

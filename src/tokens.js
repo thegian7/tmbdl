@@ -34,6 +34,11 @@ export const TokenType = {
   SHARE: 'SHARE',             // export
   FROM: 'FROM',               // from (for selective imports)
   AS: 'AS',                   // as (for aliasing)
+  REALM: 'REALM',             // class
+  FORGE: 'FORGE',             // constructor
+  SELF: 'SELF',               // this
+  INHERITS: 'INHERITS',       // extends
+  CREATE: 'CREATE',           // new
 
   // Operators
   PLUS: 'PLUS',               // +
@@ -66,6 +71,7 @@ export const TokenType = {
   COMMA: 'COMMA',             // ,
   COLON: 'COLON',             // :
   SEMICOLON: 'SEMICOLON',     // ; (optional)
+  DOT: 'DOT',                 // .
 
   // Special
   EOF: 'EOF',
@@ -101,6 +107,11 @@ export const Keywords = {
   'share': TokenType.SHARE,
   'from': TokenType.FROM,
   'as': TokenType.AS,
+  'realm': TokenType.REALM,
+  'forge': TokenType.FORGE,
+  'self': TokenType.SELF,
+  'inherits': TokenType.INHERITS,
+  'create': TokenType.CREATE,
 };
 
 // Token class

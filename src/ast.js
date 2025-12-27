@@ -323,3 +323,67 @@ export class ShareStatement extends ASTNode {
     this.names = names;              // for "share { x, y }" syntax
   }
 }
+
+// Classes (Realms)
+
+// realm Hobbit { ... }
+// realm Wizard inherits Being { ... }
+export class RealmDeclaration extends ASTNode {
+  constructor(name, superClass, constructor_, methods, line, column) {
+    super(line, column);
+    this.type = 'RealmDeclaration';
+    this.name = name;
+    this.superClass = superClass;    // name of parent class or null
+    this.constructor = constructor_; // ForgeDeclaration or null
+    this.methods = methods;          // array of method declarations
+  }
+}
+
+// forge(name, age) { self.name = name }
+export class ForgeDeclaration extends ASTNode {
+  constructor(params, body, line, column) {
+    super(line, column);
+    this.type = 'ForgeDeclaration';
+    this.params = params;
+    this.body = body;
+  }
+}
+
+// self.name or self.greet()
+export class SelfExpression extends ASTNode {
+  constructor(line, column) {
+    super(line, column);
+    this.type = 'SelfExpression';
+  }
+}
+
+// self.property access: self.name
+export class PropertyAccess extends ASTNode {
+  constructor(object, property, line, column) {
+    super(line, column);
+    this.type = 'PropertyAccess';
+    this.object = object;
+    this.property = property;  // string property name
+  }
+}
+
+// self.property = value
+export class PropertyAssignment extends ASTNode {
+  constructor(object, property, value, line, column) {
+    super(line, column);
+    this.type = 'PropertyAssignment';
+    this.object = object;
+    this.property = property;
+    this.value = value;
+  }
+}
+
+// create Hobbit("Frodo", 50)
+export class CreateExpression extends ASTNode {
+  constructor(className, args, line, column) {
+    super(line, column);
+    this.type = 'CreateExpression';
+    this.className = className;
+    this.arguments = args;
+  }
+}

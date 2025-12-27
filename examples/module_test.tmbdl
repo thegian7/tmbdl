@@ -1,0 +1,24 @@
+~ Test module imports
+
+sing "=== Testing Modules ==="
+sing ""
+
+~ Import specific exports
+summon { add, multiply, PI } from "./math_module"
+
+sing "Testing math_module imports:"
+sing "add(3, 4) = " + add(3, 4)
+sing "multiply(5, 6) = " + multiply(5, 6)
+sing "PI = " + PI
+
+sing ""
+
+~ Import as namespace
+summon "./math_module" as math
+
+sing "Using namespace import:"
+sing "math.add(10, 20) = " + math.add(10, 20)
+sing "math.square(7) = " + math.square(7)
+
+sing ""
+sing "=== Module Tests Complete ==="

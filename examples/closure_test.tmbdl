@@ -1,0 +1,80 @@
+~ Test closures in Tmbdl
+
+sing "=== Testing Closures ==="
+sing ""
+
+~ Simple closure - capture a variable
+sing "Test 1: Simple closure"
+song makeGreeter(greeting) {
+    song greet(name) {
+        sing greeting + " " + name + "!"
+    }
+    answer greet
+}
+
+ring hello = makeGreeter("Hello")
+ring howdy = makeGreeter("Howdy")
+
+hello("Frodo")
+hello("Sam")
+howdy("Merry")
+
+sing ""
+
+~ Counter closure - mutable captured variable
+sing "Test 2: Counter closure"
+song makeCounter() {
+    ring count = 0
+    song increment() {
+        count = count + 1
+        answer count
+    }
+    answer increment
+}
+
+ring counter1 = makeCounter()
+ring counter2 = makeCounter()
+
+sing "counter1: " + counter1()
+sing "counter1: " + counter1()
+sing "counter1: " + counter1()
+sing "counter2: " + counter2()
+sing "counter1: " + counter1()
+
+sing ""
+
+~ Nested closures
+sing "Test 3: Nested closures"
+song outer(x) {
+    song middle(y) {
+        song inner(z) {
+            answer x + y + z
+        }
+        answer inner
+    }
+    answer middle
+}
+
+ring add5 = outer(5)
+ring add5and10 = add5(10)
+sing "5 + 10 + 20 = " + add5and10(20)
+
+sing ""
+
+~ Function as return value with closure
+sing "Test 4: Multiplier with closure"
+song makeMultiplier(factor) {
+    song multiply(x) {
+        answer x * factor
+    }
+    answer multiply
+}
+
+ring double = makeMultiplier(2)
+ring triple = makeMultiplier(3)
+
+sing "double(7) = " + double(7)
+sing "triple(7) = " + triple(7)
+
+sing ""
+sing "=== All Closure Tests Complete ==="

@@ -1,0 +1,96 @@
+~ Test the class (realm) system
+~ Tmbdl uses LOTR-themed keywords for classes
+
+sing "=== Testing Realms (Classes) ==="
+sing ""
+
+~ Define a basic realm (class)
+realm Hobbit {
+  forge(name, age) {
+    self.name = name
+    self.age = age
+  }
+
+  song greet() {
+    sing `Hello! I am {self.name}, a hobbit of {self.age} years.`
+  }
+
+  song birthday() {
+    self.age = self.age + 1
+    sing `{self.name} is now {self.age} years old!`
+  }
+
+  song getName() {
+    answer self.name
+  }
+}
+
+sing "--- Basic Realm Test ---"
+
+~ Create an instance
+ring frodo = create Hobbit("Frodo Baggins", 50)
+frodo.greet()
+frodo.birthday()
+sing `Name via method: {frodo.getName()}`
+sing `Direct access: {frodo.name}`
+sing ""
+
+~ Create another instance
+ring sam = create Hobbit("Samwise Gamgee", 38)
+sam.greet()
+sing ""
+
+sing "--- Inheritance Test ---"
+
+~ A realm that inherits from another
+realm Being {
+  forge(name) {
+    self.name = name
+    self.alive = goldberry
+  }
+
+  song isAlive() {
+    answer self.alive
+  }
+
+  song speak(words) {
+    sing `{self.name} says: "{words}"`
+  }
+}
+
+realm Wizard inherits Being {
+  forge(name, power) {
+    self.name = name
+    self.alive = goldberry
+    self.power = power
+  }
+
+  song castSpell(spell) {
+    sing `{self.name} casts {spell} with power level {self.power}!`
+  }
+
+  song introduce() {
+    self.speak("You shall not pass!")
+  }
+}
+
+ring gandalf = create Wizard("Gandalf the Grey", 100)
+gandalf.speak("A wizard is never late.")
+gandalf.castSpell("Light")
+gandalf.introduce()
+sing `Is Gandalf alive? {gandalf.isAlive()}`
+sing ""
+
+sing "--- Multiple Instances ---"
+
+ring hobbits = [
+  create Hobbit("Merry", 36),
+  create Hobbit("Pippin", 28)
+]
+
+journey (h in hobbits) {
+  h.greet()
+}
+
+sing ""
+sing "=== All Realm Tests Passed! ==="
