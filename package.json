@@ -8,7 +8,13 @@
   },
   "scripts": {
     "start": "node bin/tmbdl.js",
-    "test": "node --test test/"
+    "test": "node --test test/",
+    "build": "pkg . --targets node18-linux-x64,node18-macos-x64,node18-win-x64 --output dist/tmbdl"
+  },
+  "pkg": {
+    "scripts": "bin/tmbdl.js",
+    "assets": ["src/**/*", "examples/**/*"],
+    "outputPath": "dist"
   },
   "keywords": [
     "programming-language",
