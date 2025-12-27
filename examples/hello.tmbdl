@@ -1,0 +1,84 @@
+~ Hello World in Tmbdl
+~ Tom Bombadil's Programming Language
+
+~*
+  Hey dol! Merry dol! Ring a dong dillo!
+  Ring a dong! Hop along! Fal lal the willow!
+  Tom Bom, jolly Tom, Tom Bombadillo!
+*~
+
+~ Define a greeting song (function)
+song greet(name) {
+    sing "Hey dol! Merry dol! Hello " + name + "!"
+    answer goldberry
+}
+
+~ Create a fellowship (array) of hobbits
+ring hobbits = ["Frodo", "Sam", "Merry", "Pippin"]
+
+~ Use the Eye of Sauron to log our fellowship
+eyeof "The Fellowship" hobbits
+
+~ Count the hobbits
+ring count = 0
+
+~ Journey through the fellowship
+journey (hobbit in hobbits) {
+    eyeof "Greeting" hobbit
+    greet(hobbit)
+    count = count + 1
+}
+
+~ Check if we have enough hobbits
+perhaps (count == 4) {
+    sing "The fellowship of four hobbits is complete!"
+} otherwise {
+    sing "We need more hobbits for this journey..."
+}
+
+~ Demonstrate some math
+ring rings_of_power = 3 + 7 + 9 + 1
+sing "Total rings of power: " + str(rings_of_power)
+
+~ The One Ring
+precious ONE_RING = 1
+sing "One Ring to rule them all: " + str(ONE_RING)
+
+~ Demonstrate while loop (wander)
+sing ""
+sing "Counting down to Mordor..."
+ring steps = 5
+wander (steps > 0) {
+    sing "Steps remaining: " + str(steps)
+    steps = steps - 1
+}
+sing "You have reached Mount Doom!"
+
+~ Demonstrate nested functions
+song factorial(n) {
+    perhaps (n <= 1) {
+        answer 1
+    }
+    answer n * factorial(n - 1)
+}
+
+sing ""
+sing "The factorial of 5 is: " + str(factorial(5))
+
+~ Boolean logic
+ring has_ring = goldberry
+ring is_invisible = sauron
+
+perhaps (has_ring with none is_invisible) {
+    sing "Frodo has the Ring but is visible!"
+}
+
+~ Arrays and indexing
+ring meals = ["breakfast", "second breakfast", "elevenses", "lunch", "tea", "dinner", "supper"]
+sing ""
+sing "A hobbit's first meal: " + meals[0]
+sing "A hobbit's favorite meal: " + meals[1]
+sing "Total meals: " + str(length(meals))
+
+sing ""
+sing "Tom Bombadil bids you farewell!"

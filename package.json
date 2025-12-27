@@ -1,0 +1,23 @@
+{
+  "name": "tmbdl",
+  "version": "1.0.0",
+  "description": "Tom Bombadil Programming Language - A LOTR-themed interpreted language",
+  "main": "src/interpreter.js",
+  "bin": {
+    "tmbdl": "./bin/tmbdl.js"
+  },
+  "scripts": {
+    "start": "node bin/tmbdl.js",
+    "test": "node --test test/"
+  },
+  "keywords": [
+    "programming-language",
+    "interpreter",
+    "lotr",
+    "tom-bombadil",
+    "compiler"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "module"
+}

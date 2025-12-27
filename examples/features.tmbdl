@@ -1,0 +1,106 @@
+~ Test all new features in Tmbdl
+
+sing "=== Testing Compound Operators ==="
+
+ring x = 10
+sing `x starts at {x}`
+
+x += 5
+sing `After x += 5: {x}`
+
+x -= 3
+sing `After x -= 3: {x}`
+
+x *= 2
+sing `After x *= 2: {x}`
+
+x /= 4
+sing `After x /= 4: {x}`
+
+sing ""
+sing "=== Testing Increment/Decrement ==="
+
+ring count = 0
+sing `count starts at {count}`
+
+count++
+sing `After count++: {count}`
+
+++count
+sing `After ++count: {count}`
+
+count--
+sing `After count--: {count}`
+
+sing ""
+sing "=== Testing Lambdas ==="
+
+ring double = (x) => x * 2
+sing `double(5) = {double(5)}`
+
+ring add = (a, b) => a + b
+sing `add(3, 4) = {add(3, 4)}`
+
+ring greetLambda = (name) => {
+    answer `Hello, {name}!`
+}
+sing greetLambda("Frodo")
+
+sing ""
+sing "=== Testing Map/Filter/Reduce ==="
+
+ring numbers = [1, 2, 3, 4, 5]
+sing `Original: {numbers}`
+
+ring doubled = map(numbers, (n) => n * 2)
+sing `Doubled: {doubled}`
+
+ring evens = filter(numbers, (n) => n % 2 == 0)
+sing `Evens only: {evens}`
+
+ring sum = reduce(numbers, (acc, n) => acc + n, 0)
+sing `Sum: {sum}`
+
+ring found = find(numbers, (n) => n > 3)
+sing `First > 3: {found}`
+
+ring hasEven = some(numbers, (n) => n % 2 == 0)
+sing `Has even? {hasEven}`
+
+ring allPositive = every(numbers, (n) => n > 0)
+sing `All positive? {allPositive}`
+
+ring sorted = sort([3, 1, 4, 1, 5, 9, 2, 6], (a, b) => a - b)
+sing `Sorted: {sorted}`
+
+sing ""
+sing "=== Testing Try/Catch (Attempt/Rescue) ==="
+
+attempt {
+    ring result = 10 / 0
+    sing "This won't print"
+} rescue (error) {
+    sing `Caught error: {error["message"]}`
+}
+
+attempt {
+    sing undefined_variable
+} rescue (error) {
+    sing `Caught error: {error["name"]}`
+}
+
+sing ""
+sing "=== Testing String Interpolation ==="
+
+ring name = "Gandalf"
+ring age = 2019
+sing `{name} the Grey is approximately {age} years old.`
+
+ring hobbits = ["Frodo", "Sam", "Merry", "Pippin"]
+sing `The fellowship includes {length(hobbits)} hobbits.`
+
+ring calculation = 6 * 7
+sing `The answer to everything: {calculation}`
+
+sing ""
+sing "=== All Tests Complete! ==="
