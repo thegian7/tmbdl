@@ -4,6 +4,7 @@
 // This is the "engine" that runs compiled Tmbdl programs.
 
 import { OpCode, TmbdlBytecodeFunction, Closure, Upvalue } from './bytecode.js';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 // ============================================================
 // CALL FRAME - Represents a function call
@@ -161,6 +162,145 @@ export class VM {
         copy.sort((a, b) => a - b);
       }
       return copy;
+    }));
+
+    // ════════════════════════════════════════════════════════════
+    // String manipulation functions (for self-hosting compiler)
+    // ════════════════════════════════════════════════════════════
+
+    this.globals.set('charAt', native('charAt', 2, (args) => {
+      const [str, index] = args;
+      if (index < 0 || index >= str.length) return '';
+      return str.charAt(index);
+    }));
+
+    this.globals.set('charCode', native('charCode', 1, (args) => {
+      return args[0].charCodeAt(0);
+    }));
+
+    this.globals.set('fromCharCode', native('fromCharCode', 1, (args) => {
+      return String.fromCharCode(args[0]);
+    }));
+
+    this.globals.set('isAlpha', native('isAlpha', 1, (args) => {
+      const char = args[0];
+      if (typeof char !== 'string' || char.length !== 1) return false;
+      const code = char.charCodeAt(0);
+      return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || char === '_';
+    }));
+
+    this.globals.set('isDigit', native('isDigit', 1, (args) => {
+      const char = args[0];
+      if (typeof char !== 'string' || char.length !== 1) return false;
+      const code = char.charCodeAt(0);
+      return code >= 48 && code <= 57;
+    }));
+
+    this.globals.set('isAlphaNumeric', native('isAlphaNumeric', 1, (args) => {
+      const char = args[0];
+      if (typeof char !== 'string' || char.length !== 1) return false;
+      const code = char.charCodeAt(0);
+      return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) ||
+             (code >= 48 && code <= 57) || char === '_';
+    }));
+
+    this.globals.set('isWhitespace', native('isWhitespace', 1, (args) => {
+      const char = args[0];
+      return char === ' ' || char === '\t' || char === '\n' || char === '\r';
+    }));
+
+    this.globals.set('indexOf', native('indexOf', -1, (args) => {
+      return args[0].indexOf(args[1], args[2] || 0);
+    }));
+
+    this.globals.set('lastIndexOf', native('lastIndexOf', -1, (args) => {
+      return args[0].lastIndexOf(args[1]);
+    }));
+
+    this.globals.set('startsWith', native('startsWith', 2, (args) => {
+      return args[0].startsWith(args[1]);
+    }));
+
+    this.globals.set('endsWith', native('endsWith', 2, (args) => {
+      return args[0].endsWith(args[1]);
+    }));
+
+    this.globals.set('trim', native('trim', 1, (args) => {
+      return args[0].trim();
+    }));
+
+    this.globals.set('toLowerCase', native('toLowerCase', 1, (args) => {
+      return args[0].toLowerCase();
+    }));
+
+    this.globals.set('toUpperCase', native('toUpperCase', 1, (args) => {
+      return args[0].toUpperCase();
+    }));
+
+    this.globals.set('replace', native('replace', 3, (args) => {
+      return args[0].replace(args[1], args[2]);
+    }));
+
+    this.globals.set('replaceAll', native('replaceAll', 3, (args) => {
+      return args[0].split(args[1]).join(args[2]);
+    }));
+
+    this.globals.set('includes', native('includes', 2, (args) => {
+      return args[0].includes(args[1]);
+    }));
+
+    this.globals.set('repeat', native('repeat', 2, (args) => {
+      return args[0].repeat(args[1]);
+    }));
+
+    this.globals.set('reverse', native('reverse', 1, (args) => {
+      if (Array.isArray(args[0])) return [...args[0]].reverse();
+      return args[0].split('').reverse().join('');
+    }));
+
+    this.globals.set('concat', native('concat', -1, (args) => {
+      if (args.length === 0) return [];
+      return args[0].concat(...args.slice(1));
+    }));
+
+    // ════════════════════════════════════════════════════════════
+    // File I/O functions
+    // ════════════════════════════════════════════════════════════
+
+    this.globals.set('readFile', native('readFile', 1, (args) => {
+      try {
+        return readFileSync(args[0], 'utf-8');
+      } catch (e) {
+        throw new Error(`The scroll could not be found: '${args[0]}'`);
+      }
+    }));
+
+    this.globals.set('writeFile', native('writeFile', 2, (args) => {
+      try {
+        writeFileSync(args[0], args[1], 'utf-8');
+        return true;
+      } catch (e) {
+        throw new Error(`Could not inscribe the scroll: '${args[0]}'`);
+      }
+    }));
+
+    this.globals.set('fileExists', native('fileExists', 1, (args) => {
+      return existsSync(args[0]);
+    }));
+
+    // ════════════════════════════════════════════════════════════
+    // Error handling
+    // ════════════════════════════════════════════════════════════
+
+    this.globals.set('error', native('error', 1, (args) => {
+      throw new Error(String(args[0]));
+    }));
+
+    this.globals.set('assert', native('assert', -1, (args) => {
+      if (!args[0]) {
+        throw new Error(args[1] || 'Assertion failed');
+      }
+      return true;
     }));
   }
 

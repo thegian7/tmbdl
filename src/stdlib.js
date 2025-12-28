@@ -2,6 +2,7 @@
 // Built-in functions with LOTR theming
 
 import { TypeError } from './errors.js';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 class NativeFunction {
   constructor(name, arity, fn) {
@@ -321,6 +322,289 @@ export function createStdlib() {
       copy.sort((a, b) => a - b);
     }
     return copy;
+  }));
+
+  // ═══════════════════════════════════════════════════════════════
+  // String manipulation functions (for self-hosting compiler)
+  // ═══════════════════════════════════════════════════════════════
+
+  // charAt - Get character at index
+  stdlib.set('charAt', new NativeFunction('charAt', 2, (args) => {
+    const str = args[0];
+    const index = args[1];
+    if (typeof str !== 'string') {
+      throw new TypeError('charAt() requires a tale (string) as first argument');
+    }
+    if (index < 0 || index >= str.length) {
+      return '';  // Return empty string for out of bounds (like JS)
+    }
+    return str.charAt(index);
+  }));
+
+  // charCode - Get ASCII/Unicode code of character
+  stdlib.set('charCode', new NativeFunction('charCode', 1, (args) => {
+    const str = args[0];
+    if (typeof str !== 'string' || str.length === 0) {
+      throw new TypeError('charCode() requires a non-empty tale (string)');
+    }
+    return str.charCodeAt(0);
+  }));
+
+  // fromCharCode - Create character from ASCII/Unicode code
+  stdlib.set('fromCharCode', new NativeFunction('fromCharCode', 1, (args) => {
+    const code = args[0];
+    if (typeof code !== 'number') {
+      throw new TypeError('fromCharCode() requires a number');
+    }
+    return String.fromCharCode(code);
+  }));
+
+  // isAlpha - Check if character is alphabetic
+  stdlib.set('isAlpha', new NativeFunction('isAlpha', 1, (args) => {
+    const char = args[0];
+    if (typeof char !== 'string') {
+      return false;
+    }
+    if (char.length !== 1) {
+      return false;
+    }
+    const code = char.charCodeAt(0);
+    return (code >= 65 && code <= 90) ||   // A-Z
+           (code >= 97 && code <= 122) ||  // a-z
+           char === '_';                    // underscore counts as alpha for identifiers
+  }));
+
+  // isDigit - Check if character is a digit
+  stdlib.set('isDigit', new NativeFunction('isDigit', 1, (args) => {
+    const char = args[0];
+    if (typeof char !== 'string') {
+      return false;
+    }
+    if (char.length !== 1) {
+      return false;
+    }
+    const code = char.charCodeAt(0);
+    return code >= 48 && code <= 57;  // 0-9
+  }));
+
+  // isAlphaNumeric - Check if character is alphanumeric
+  stdlib.set('isAlphaNumeric', new NativeFunction('isAlphaNumeric', 1, (args) => {
+    const char = args[0];
+    if (typeof char !== 'string') {
+      return false;
+    }
+    if (char.length !== 1) {
+      return false;
+    }
+    const code = char.charCodeAt(0);
+    return (code >= 65 && code <= 90) ||   // A-Z
+           (code >= 97 && code <= 122) ||  // a-z
+           (code >= 48 && code <= 57) ||   // 0-9
+           char === '_';                    // underscore
+  }));
+
+  // isWhitespace - Check if character is whitespace
+  stdlib.set('isWhitespace', new NativeFunction('isWhitespace', 1, (args) => {
+    const char = args[0];
+    if (typeof char !== 'string') {
+      return false;
+    }
+    return char === ' ' || char === '\t' || char === '\n' || char === '\r';
+  }));
+
+  // indexOf - Find index of substring
+  stdlib.set('indexOf', new NativeFunction('indexOf', -1, (args) => {
+    const str = args[0];
+    const search = args[1];
+    const start = args[2] || 0;
+    if (typeof str !== 'string') {
+      throw new TypeError('indexOf() requires a tale (string) as first argument');
+    }
+    return str.indexOf(search, start);
+  }));
+
+  // lastIndexOf - Find last index of substring
+  stdlib.set('lastIndexOf', new NativeFunction('lastIndexOf', -1, (args) => {
+    const str = args[0];
+    const search = args[1];
+    if (typeof str !== 'string') {
+      throw new TypeError('lastIndexOf() requires a tale (string) as first argument');
+    }
+    return str.lastIndexOf(search);
+  }));
+
+  // startsWith - Check if string starts with prefix
+  stdlib.set('startsWith', new NativeFunction('startsWith', 2, (args) => {
+    const str = args[0];
+    const prefix = args[1];
+    if (typeof str !== 'string') {
+      throw new TypeError('startsWith() requires a tale (string) as first argument');
+    }
+    return str.startsWith(prefix);
+  }));
+
+  // endsWith - Check if string ends with suffix
+  stdlib.set('endsWith', new NativeFunction('endsWith', 2, (args) => {
+    const str = args[0];
+    const suffix = args[1];
+    if (typeof str !== 'string') {
+      throw new TypeError('endsWith() requires a tale (string) as first argument');
+    }
+    return str.endsWith(suffix);
+  }));
+
+  // trim - Remove leading/trailing whitespace
+  stdlib.set('trim', new NativeFunction('trim', 1, (args) => {
+    const str = args[0];
+    if (typeof str !== 'string') {
+      throw new TypeError('trim() requires a tale (string)');
+    }
+    return str.trim();
+  }));
+
+  // toLowerCase - Convert to lowercase
+  stdlib.set('toLowerCase', new NativeFunction('toLowerCase', 1, (args) => {
+    const str = args[0];
+    if (typeof str !== 'string') {
+      throw new TypeError('toLowerCase() requires a tale (string)');
+    }
+    return str.toLowerCase();
+  }));
+
+  // toUpperCase - Convert to uppercase
+  stdlib.set('toUpperCase', new NativeFunction('toUpperCase', 1, (args) => {
+    const str = args[0];
+    if (typeof str !== 'string') {
+      throw new TypeError('toUpperCase() requires a tale (string)');
+    }
+    return str.toUpperCase();
+  }));
+
+  // replace - Replace first occurrence
+  stdlib.set('replace', new NativeFunction('replace', 3, (args) => {
+    const str = args[0];
+    const search = args[1];
+    const replacement = args[2];
+    if (typeof str !== 'string') {
+      throw new TypeError('replace() requires a tale (string) as first argument');
+    }
+    return str.replace(search, replacement);
+  }));
+
+  // replaceAll - Replace all occurrences
+  stdlib.set('replaceAll', new NativeFunction('replaceAll', 3, (args) => {
+    const str = args[0];
+    const search = args[1];
+    const replacement = args[2];
+    if (typeof str !== 'string') {
+      throw new TypeError('replaceAll() requires a tale (string) as first argument');
+    }
+    return str.split(search).join(replacement);
+  }));
+
+  // includes - Check if string/array contains value
+  stdlib.set('includes', new NativeFunction('includes', 2, (args) => {
+    const container = args[0];
+    const value = args[1];
+    if (typeof container === 'string' || Array.isArray(container)) {
+      return container.includes(value);
+    }
+    throw new TypeError('includes() requires a tale (string) or fellowship (array)');
+  }));
+
+  // repeat - Repeat string n times
+  stdlib.set('repeat', new NativeFunction('repeat', 2, (args) => {
+    const str = args[0];
+    const count = args[1];
+    if (typeof str !== 'string') {
+      throw new TypeError('repeat() requires a tale (string) as first argument');
+    }
+    return str.repeat(count);
+  }));
+
+  // reverse - Reverse array or string
+  stdlib.set('reverse', new NativeFunction('reverse', 1, (args) => {
+    const value = args[0];
+    if (Array.isArray(value)) {
+      return [...value].reverse();
+    }
+    if (typeof value === 'string') {
+      return value.split('').reverse().join('');
+    }
+    throw new TypeError('reverse() requires a tale (string) or fellowship (array)');
+  }));
+
+  // concat - Concatenate arrays
+  stdlib.set('concat', new NativeFunction('concat', -1, (args) => {
+    if (args.length === 0) return [];
+    if (!Array.isArray(args[0])) {
+      throw new TypeError('concat() requires fellowships (arrays)');
+    }
+    return args[0].concat(...args.slice(1));
+  }));
+
+  // ═══════════════════════════════════════════════════════════════
+  // File I/O functions (for self-hosting compiler)
+  // ═══════════════════════════════════════════════════════════════
+
+  // readFile - Read entire file as string
+  stdlib.set('readFile', new NativeFunction('readFile', 1, (args) => {
+    const path = args[0];
+    if (typeof path !== 'string') {
+      throw new TypeError('readFile() requires a path (string)');
+    }
+    try {
+      return readFileSync(path, 'utf-8');
+    } catch (e) {
+      throw new TypeError(`The scroll could not be found: '${path}'`);
+    }
+  }));
+
+  // writeFile - Write string to file
+  stdlib.set('writeFile', new NativeFunction('writeFile', 2, (args) => {
+    const path = args[0];
+    const content = args[1];
+    if (typeof path !== 'string') {
+      throw new TypeError('writeFile() requires a path (string) as first argument');
+    }
+    if (typeof content !== 'string') {
+      throw new TypeError('writeFile() requires content (string) as second argument');
+    }
+    try {
+      writeFileSync(path, content, 'utf-8');
+      return true;
+    } catch (e) {
+      throw new TypeError(`Could not inscribe the scroll: '${path}'`);
+    }
+  }));
+
+  // fileExists - Check if file exists
+  stdlib.set('fileExists', new NativeFunction('fileExists', 1, (args) => {
+    const path = args[0];
+    if (typeof path !== 'string') {
+      throw new TypeError('fileExists() requires a path (string)');
+    }
+    return existsSync(path);
+  }));
+
+  // ═══════════════════════════════════════════════════════════════
+  // Error handling
+  // ═══════════════════════════════════════════════════════════════
+
+  // error - Throw an error with message
+  stdlib.set('error', new NativeFunction('error', 1, (args) => {
+    const message = args[0];
+    throw new Error(String(message));
+  }));
+
+  // assert - Assert condition is true
+  stdlib.set('assert', new NativeFunction('assert', -1, (args) => {
+    const condition = args[0];
+    const message = args[1] || 'Assertion failed';
+    if (!condition) {
+      throw new Error(String(message));
+    }
+    return true;
   }));
 
   return stdlib;

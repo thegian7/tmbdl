@@ -1,0 +1,118 @@
+~ Test new stdlib functions for self-hosting compiler
+
+sing "=== Testing String Functions ==="
+sing ""
+
+~ charAt
+ring text = "Hello World"
+sing "charAt('Hello World', 0) = '" + charAt(text, 0) + "'"
+sing "charAt('Hello World', 6) = '" + charAt(text, 6) + "'"
+assert(charAt(text, 0) == "H", "charAt failed")
+assert(charAt(text, 6) == "W", "charAt failed")
+
+~ charCode and fromCharCode
+sing "charCode('A') = " + charCode("A")
+sing "fromCharCode(65) = '" + fromCharCode(65) + "'"
+assert(charCode("A") == 65, "charCode failed")
+assert(fromCharCode(65) == "A", "fromCharCode failed")
+
+~ isAlpha, isDigit, isAlphaNumeric
+sing ""
+sing "isAlpha('a') = " + isAlpha("a")
+sing "isAlpha('5') = " + isAlpha("5")
+sing "isDigit('5') = " + isDigit("5")
+sing "isDigit('a') = " + isDigit("a")
+sing "isAlphaNumeric('a') = " + isAlphaNumeric("a")
+sing "isAlphaNumeric('5') = " + isAlphaNumeric("5")
+sing "isAlphaNumeric('_') = " + isAlphaNumeric("_")
+sing "isAlphaNumeric('!') = " + isAlphaNumeric("!")
+assert(isAlpha("a") == goldberry, "isAlpha failed")
+assert(isAlpha("5") == sauron, "isAlpha should be false for digits")
+assert(isDigit("5") == goldberry, "isDigit failed")
+assert(isAlphaNumeric("_") == goldberry, "isAlphaNumeric should allow underscore")
+
+~ isWhitespace
+sing ""
+sing "isWhitespace(' ') = " + isWhitespace(" ")
+sing "isWhitespace('a') = " + isWhitespace("a")
+assert(isWhitespace(" ") == goldberry, "isWhitespace failed")
+assert(isWhitespace("\n") == goldberry, "isWhitespace should match newline")
+
+~ indexOf
+sing ""
+sing "indexOf('Hello World', 'World') = " + indexOf("Hello World", "World")
+sing "indexOf('Hello World', 'o') = " + indexOf("Hello World", "o")
+assert(indexOf("Hello World", "World") == 6, "indexOf failed")
+assert(indexOf("Hello World", "xyz") == 0 - 1, "indexOf should return -1 for not found")
+
+~ startsWith, endsWith
+sing ""
+sing "startsWith('Hello', 'He') = " + startsWith("Hello", "He")
+sing "endsWith('Hello', 'lo') = " + endsWith("Hello", "lo")
+assert(startsWith("Hello", "He") == goldberry, "startsWith failed")
+assert(endsWith("Hello", "lo") == goldberry, "endsWith failed")
+
+~ trim
+sing ""
+sing "trim('  hello  ') = '" + trim("  hello  ") + "'"
+assert(trim("  hello  ") == "hello", "trim failed")
+
+~ toLowerCase, toUpperCase
+sing ""
+sing "toLowerCase('HeLLo') = '" + toLowerCase("HeLLo") + "'"
+sing "toUpperCase('hello') = '" + toUpperCase("hello") + "'"
+assert(toLowerCase("HeLLo") == "hello", "toLowerCase failed")
+assert(toUpperCase("hello") == "HELLO", "toUpperCase failed")
+
+~ replace, replaceAll
+sing ""
+sing "replace('hello world', 'o', '0') = '" + replace("hello world", "o", "0") + "'"
+sing "replaceAll('hello world', 'o', '0') = '" + replaceAll("hello world", "o", "0") + "'"
+assert(replace("hello world", "o", "0") == "hell0 world", "replace failed")
+assert(replaceAll("hello world", "o", "0") == "hell0 w0rld", "replaceAll failed")
+
+~ includes
+sing ""
+sing "includes('hello', 'ell') = " + includes("hello", "ell")
+sing "includes([1,2,3], 2) = " + includes([1,2,3], 2)
+assert(includes("hello", "ell") == goldberry, "includes string failed")
+assert(includes([1,2,3], 2) == goldberry, "includes array failed")
+
+~ repeat
+sing ""
+sing "repeat('ab', 3) = '" + repeat("ab", 3) + "'"
+assert(repeat("ab", 3) == "ababab", "repeat failed")
+
+~ reverse
+sing ""
+sing "reverse('hello') = '" + reverse("hello") + "'"
+sing "reverse([1,2,3]) = " + str(reverse([1,2,3]))
+assert(reverse("hello") == "olleh", "reverse string failed")
+
+~ concat
+sing ""
+ring arr1 = [1, 2]
+ring arr2 = [3, 4]
+sing "concat([1,2], [3,4]) = " + str(concat(arr1, arr2))
+
+sing ""
+sing "=== Testing File I/O ==="
+sing ""
+
+~ fileExists
+sing "fileExists('examples/hello.tmbdl') = " + fileExists("examples/hello.tmbdl")
+sing "fileExists('nonexistent.txt') = " + fileExists("nonexistent.txt")
+
+~ readFile (read this very file!)
+ring source = readFile("examples/stdlib_test.tmbdl")
+sing "Read " + length(source) + " characters from stdlib_test.tmbdl"
+assert(length(source) > 100, "readFile failed - file too short")
+
+~ writeFile
+writeFile("/tmp/tmbdl_test.txt", "Hello from Tmbdl!")
+ring content = readFile("/tmp/tmbdl_test.txt")
+sing "Wrote and read back: '" + content + "'"
+assert(content == "Hello from Tmbdl!", "writeFile/readFile roundtrip failed")
+
+sing ""
+sing "=== All stdlib tests passed! ==="
