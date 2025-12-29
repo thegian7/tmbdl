@@ -1,0 +1,35 @@
+~ LeetCode #33: Search in Rotated Sorted Array
+~ Difficulty: Medium
+~ Tags: Array, Binary Search
+
+~*
+  An integer fellowship nums sorted in ascending order was rotated
+  at an unknown pivot index k (1 <= k < length(nums)).
+
+  For example, [0,1,2,4,5,6,7] might become [4,5,6,7,0,1,2].
+
+  Given the rotated fellowship nums and an integer target, answer the
+  index of target if it is in nums, or -1 if it is not.
+
+  You must write an algorithm with O(log n) runtime complexity.
+
+  Examples:
+    nums = [4,5,6,7,0,1,2], target = 0  =>  4
+    nums = [4,5,6,7,0,1,2], target = 3  =>  -1
+    nums = [1], target = 0              =>  -1
+
+  Constraints:
+    - 1 <= length(nums) <= 5000
+    - -10000 <= nums[i], target <= 10000
+    - All values of nums are unique
+*~
+
+song search(nums, target) {
+    ~ Your code here (use binary search)
+    answer -1
+}
+
+~ Test cases
+sing "Search 0 in [4,5,6,7,0,1,2]: " + str(search([4,5,6,7,0,1,2], 0))
+sing "Search 3 in [4,5,6,7,0,1,2]: " + str(search([4,5,6,7,0,1,2], 3))
+sing "Search 0 in [1]: " + str(search([1], 0))

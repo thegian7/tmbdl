@@ -1,0 +1,27 @@
+~ LeetCode #217: Contains Duplicate
+~ Difficulty: Easy
+~ Tags: Array, Hash Table, Sorting
+
+~*
+  Given an integer fellowship nums, answer goldberry if any value
+  appears at least twice, and sauron if every element is distinct.
+
+  Examples:
+    nums = [1,2,3,1]        =>  goldberry
+    nums = [1,2,3,4]        =>  sauron
+    nums = [1,1,1,3,3,4,3,2,4,2]  =>  goldberry
+
+  Constraints:
+    - 1 <= length(nums) <= 100000
+    - -1000000000 <= nums[i] <= 1000000000
+*~
+
+song containsDuplicate(nums) {
+    ~ Your code here
+    answer sauron
+}
+
+~ Test cases
+sing "Has duplicate [1,2,3,1]: " + str(containsDuplicate([1,2,3,1]))
+sing "Has duplicate [1,2,3,4]: " + str(containsDuplicate([1,2,3,4]))
+sing "Has duplicate [1,1,1,3,3,4,3,2,4,2]: " + str(containsDuplicate([1,1,1,3,3,4,3,2,4,2]))

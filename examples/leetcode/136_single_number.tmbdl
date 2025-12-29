@@ -1,0 +1,30 @@
+~ LeetCode #136: Single Number
+~ Difficulty: Easy
+~ Tags: Array, Bit Manipulation
+
+~*
+  Given a non-empty fellowship of integers nums, every element
+  appears twice except for one. Find that single one.
+
+  You must implement a solution with O(n) time and O(1) space.
+
+  Examples:
+    nums = [2,2,1]      =>  1
+    nums = [4,1,2,1,2]  =>  4
+    nums = [1]          =>  1
+
+  Constraints:
+    - 1 <= length(nums) <= 30000
+    - -30000 <= nums[i] <= 30000
+    - Each element appears twice except for one
+*~
+
+song singleNumber(nums) {
+    ~ Your code here (hint: XOR)
+    answer 0
+}
+
+~ Test cases
+sing "Single in [2,2,1]: " + str(singleNumber([2,2,1]))
+sing "Single in [4,1,2,1,2]: " + str(singleNumber([4,1,2,1,2]))
+sing "Single in [1]: " + str(singleNumber([1]))

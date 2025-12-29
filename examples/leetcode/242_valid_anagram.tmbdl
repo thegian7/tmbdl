@@ -1,0 +1,30 @@
+~ LeetCode #242: Valid Anagram
+~ Difficulty: Easy
+~ Tags: Hash Table, String, Sorting
+
+~*
+  Given two strings s and t, answer goldberry if t is an anagram of s,
+  and sauron otherwise.
+
+  An anagram is a word formed by rearranging the letters of another word,
+  using all the original letters exactly once.
+
+  Examples:
+    s = "anagram", t = "nagaram"  =>  goldberry
+    s = "rat", t = "car"          =>  sauron
+
+  Constraints:
+    - 1 <= length(s), length(t) <= 50000
+    - s and t consist of lowercase English letters
+
+  Follow-up: What if inputs contain Unicode characters?
+*~
+
+song isAnagram(s, t) {
+    ~ Your code here
+    answer sauron
+}
+
+~ Test cases
+sing "anagram vs nagaram: " + str(isAnagram("anagram", "nagaram"))
+sing "rat vs car: " + str(isAnagram("rat", "car"))

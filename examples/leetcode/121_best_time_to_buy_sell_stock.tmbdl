@@ -1,0 +1,33 @@
+~ LeetCode #121: Best Time to Buy and Sell Stock
+~ Difficulty: Easy
+~ Tags: Array, Dynamic Programming
+
+~*
+  You are given a fellowship of prices where prices[i] is the price
+  of mithril on the ith day.
+
+  You want to maximize your profit by choosing a single day to buy
+  and a different day in the future to sell.
+
+  Answer the maximum profit. If no profit is possible, answer 0.
+
+  Examples:
+    prices = [7,1,5,3,6,4]  =>  5
+      Buy on day 2 (price=1), sell on day 5 (price=6), profit = 5
+
+    prices = [7,6,4,3,1]  =>  0
+      No profitable transaction possible
+
+  Constraints:
+    - 1 <= length(prices) <= 100000
+    - 0 <= prices[i] <= 10000
+*~
+
+song maxProfit(prices) {
+    ~ Your code here
+    answer 0
+}
+
+~ Test cases
+sing "Max profit [7,1,5,3,6,4]: " + str(maxProfit([7,1,5,3,6,4]))
+sing "Max profit [7,6,4,3,1]: " + str(maxProfit([7,6,4,3,1]))

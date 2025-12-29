@@ -1,0 +1,53 @@
+~ LeetCode #200: Number of Islands
+~ Difficulty: Medium
+~ Tags: Array, DFS, BFS, Matrix
+
+~*
+  Given an m x n 2D grid map of '1's (land) and '0's (water),
+  answer the number of islands.
+
+  An island is surrounded by water and is formed by connecting
+  adjacent lands horizontally or vertically.
+
+  Examples:
+    grid = [
+      ["1","1","1","1","0"],
+      ["1","1","0","1","0"],
+      ["1","1","0","0","0"],
+      ["0","0","0","0","0"]
+    ]  =>  1
+
+    grid = [
+      ["1","1","0","0","0"],
+      ["1","1","0","0","0"],
+      ["0","0","1","0","0"],
+      ["0","0","0","1","1"]
+    ]  =>  3
+
+  Constraints:
+    - 1 <= m, n <= 300
+    - grid[i][j] is '0' or '1'
+*~
+
+song numIslands(grid) {
+    ~ Your code here (use DFS or BFS)
+    answer 0
+}
+
+~ Test cases
+ring grid1 = [
+    ["1","1","1","1","0"],
+    ["1","1","0","1","0"],
+    ["1","1","0","0","0"],
+    ["0","0","0","0","0"]
+]
+
+ring grid2 = [
+    ["1","1","0","0","0"],
+    ["1","1","0","0","0"],
+    ["0","0","1","0","0"],
+    ["0","0","0","1","1"]
+]
+
+sing "Islands in grid1: " + str(numIslands(grid1))
+sing "Islands in grid2: " + str(numIslands(grid2))

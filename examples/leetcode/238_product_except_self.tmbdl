@@ -1,0 +1,30 @@
+~ LeetCode #238: Product of Array Except Self
+~ Difficulty: Medium
+~ Tags: Array, Prefix Sum
+
+~*
+  Given an integer fellowship nums, answer a fellowship answer such that
+  answer[i] is equal to the product of all elements of nums except nums[i].
+
+  You must write an algorithm that runs in O(n) time WITHOUT using division.
+
+  Examples:
+    nums = [1,2,3,4]  =>  [24,12,8,6]
+    nums = [-1,1,0,-3,3]  =>  [0,0,9,0,0]
+
+  Constraints:
+    - 2 <= length(nums) <= 100000
+    - -30 <= nums[i] <= 30
+    - Product of any prefix or suffix fits in a 32-bit integer
+
+  Follow-up: Can you solve it with O(1) extra space?
+*~
+
+song productExceptSelf(nums) {
+    ~ Your code here
+    answer []
+}
+
+~ Test cases
+sing "Product except self [1,2,3,4]: " + str(productExceptSelf([1,2,3,4]))
+sing "Product except self [-1,1,0,-3,3]: " + str(productExceptSelf([-1,1,0,-3,3]))

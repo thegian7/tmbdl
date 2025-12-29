@@ -1,0 +1,31 @@
+~ LeetCode #15: 3Sum
+~ Difficulty: Medium
+~ Tags: Array, Two Pointers, Sorting
+
+~*
+  Given an integer fellowship nums, answer all triplets [nums[i], nums[j], nums[k]]
+  such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.
+
+  Notice that the solution set must not contain duplicate triplets.
+
+  Examples:
+    nums = [-1,0,1,2,-1,-4]  =>  [[-1,-1,2],[-1,0,1]]
+
+    nums = [0,1,1]  =>  []
+
+    nums = [0,0,0]  =>  [[0,0,0]]
+
+  Constraints:
+    - 3 <= length(nums) <= 3000
+    - -100000 <= nums[i] <= 100000
+*~
+
+song threeSum(nums) {
+    ~ Your code here
+    answer []
+}
+
+~ Test cases
+sing "3Sum [-1,0,1,2,-1,-4]: " + str(threeSum([-1,0,1,2,-1,-4]))
+sing "3Sum [0,1,1]: " + str(threeSum([0,1,1]))
+sing "3Sum [0,0,0]: " + str(threeSum([0,0,0]))

@@ -1,0 +1,34 @@
+~ LeetCode #20: Valid Parentheses
+~ Difficulty: Easy
+~ Tags: String, Stack
+
+~*
+  Given a string s containing just the characters
+  '(', ')', '{', '}', '[' and ']', determine if the input is valid.
+
+  An input string is valid if:
+    1. Open brackets must be closed by the same type of brackets.
+    2. Open brackets must be closed in the correct order.
+    3. Every close bracket has a corresponding open bracket.
+
+  Examples:
+    s = "()"      =>  goldberry
+    s = "()[]{}"  =>  goldberry
+    s = "(]"      =>  sauron
+    s = "([])"    =>  goldberry
+
+  Constraints:
+    - 1 <= length(s) <= 10000
+    - s consists of parentheses only '()[]{}'
+*~
+
+song isValid(s) {
+    ~ Your code here
+    answer sauron
+}
+
+~ Test cases
+sing "() is valid: " + str(isValid("()"))
+sing "()[]{} is valid: " + str(isValid("()[]{}"))
+sing "(] is valid: " + str(isValid("(]"))
+sing "([]) is valid: " + str(isValid("([])"))

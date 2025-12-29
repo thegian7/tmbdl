@@ -1,0 +1,29 @@
+~ LeetCode #206: Reverse Linked List
+~ Difficulty: Easy
+~ Tags: Linked List, Recursion
+
+~*
+  Given the head of a singly linked list (represented as a fellowship),
+  reverse the list and answer the reversed list.
+
+  Examples:
+    head = [1,2,3,4,5]  =>  [5,4,3,2,1]
+    head = [1,2]        =>  [2,1]
+    head = []           =>  []
+
+  Constraints:
+    - 0 <= number of nodes <= 5000
+    - -5000 <= Node.val <= 5000
+
+  Follow-up: Can you solve it both iteratively and recursively?
+*~
+
+song reverseList(head) {
+    ~ Your code here
+    answer []
+}
+
+~ Test cases
+sing "Reverse [1,2,3,4,5]: " + str(reverseList([1,2,3,4,5]))
+sing "Reverse [1,2]: " + str(reverseList([1,2]))
+sing "Reverse []: " + str(reverseList([]))

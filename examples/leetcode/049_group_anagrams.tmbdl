@@ -1,0 +1,30 @@
+~ LeetCode #49: Group Anagrams
+~ Difficulty: Medium
+~ Tags: Array, Hash Table, String, Sorting
+
+~*
+  Given a fellowship of strings strs, group the anagrams together.
+  You can answer the groups in any order.
+
+  Examples:
+    strs = ["eat","tea","tan","ate","nat","bat"]
+      =>  [["bat"],["nat","tan"],["ate","eat","tea"]]
+
+    strs = [""]  =>  [[""]]
+
+    strs = ["a"]  =>  [["a"]]
+
+  Constraints:
+    - 1 <= length(strs) <= 10000
+    - 0 <= length(strs[i]) <= 100
+    - strs[i] consists of lowercase English letters
+*~
+
+song groupAnagrams(strs) {
+    ~ Your code here
+    answer []
+}
+
+~ Test cases
+ring words = ["eat","tea","tan","ate","nat","bat"]
+sing "Group anagrams: " + str(groupAnagrams(words))

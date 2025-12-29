@@ -1,0 +1,32 @@
+~ LeetCode #21: Merge Two Sorted Lists
+~ Difficulty: Easy
+~ Tags: Linked List, Recursion
+
+~*
+  You are given two sorted fellowships (arrays) list1 and list2.
+
+  Merge them into one sorted fellowship by splicing together
+  the elements of both lists.
+
+  Answer the merged sorted fellowship.
+
+  Examples:
+    list1 = [1,2,4], list2 = [1,3,4]  =>  [1,1,2,3,4,4]
+    list1 = [], list2 = []            =>  []
+    list1 = [], list2 = [0]           =>  [0]
+
+  Constraints:
+    - 0 <= length of both lists <= 50
+    - -100 <= values <= 100
+    - Both lists are sorted in non-decreasing order
+*~
+
+song mergeTwoLists(list1, list2) {
+    ~ Your code here
+    answer []
+}
+
+~ Test cases
+sing "Merge [1,2,4] and [1,3,4]: " + str(mergeTwoLists([1,2,4], [1,3,4]))
+sing "Merge [] and []: " + str(mergeTwoLists([], []))
+sing "Merge [] and [0]: " + str(mergeTwoLists([], [0]))
